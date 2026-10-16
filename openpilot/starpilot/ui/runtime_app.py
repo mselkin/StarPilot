@@ -1791,6 +1791,9 @@ class StarMainLayout(MainLayout):
     # the native layout's own gate immediately before invoking an effect owner.
     return bool(ui_state.is_offroad() and self.star.adapter.confirmed_offroad())
 
+  def _arabesque_allowed(self) -> bool:
+    return self._confirmed_offroad()
+
   def _system_power_action(self, index: int) -> None:
     from openpilot.selfdrive.ui.layouts.settings.settings import PanelType
     def allowed() -> bool:
@@ -1916,7 +1919,7 @@ class StarMainLayout(MainLayout):
     return True
 
   def _render_main_content(self) -> None:
-    if self._current_mode == MainState.HOME and ui_state.is_body:
+    if self._current_mode == MainState.ARABESQUE or self._current_mode == MainState.HOME and ui_state.is_body:
       super()._render_main_content()
       return
     rect = self._rect
@@ -1948,7 +1951,7 @@ class StarMainLayout(MainLayout):
     if changed and hasattr(self, "page"):
       self.page.hide_event()
     super()._set_current_layout(layout)
-    if changed and hasattr(self, "page"):
+    if changed and hasattr(self, "page") and layout != MainState.ARABESQUE:
       self.page.show_event()
 
   def open_settings(self, panel_type: Any) -> None:
@@ -1973,6 +1976,7 @@ class StarMainLayout(MainLayout):
     super()._on_body_changed()
 
   def close(self) -> None:
+    super().close()
     self._leave_large_panel()
     self._network_bridge.leave()
     self.star.close()

@@ -24,7 +24,7 @@ from openpilot.starpilot.conditional_mode.projection import paired_clocks_ns
 from openpilot.starpilot.conditional_mode.runtime_settings import ConditionalSettingsOwner
 from openpilot.starpilot.conditional_mode.status import settings_fingerprint
 from openpilot.starpilot.longitudinal.profile_runtime import read_traffic_settings
-from openpilot.starpilot.parked_evidence import ParkedEvidence, RESUME_SKEW_NS, fresh_offroad
+from openpilot.starpilot.parked_evidence import ParkedEvidence, RESUME_SKEW_NS, fresh_offroad, host_parked
 from openpilot.starpilot.ui.conditional_status import ConditionalDisplayProjector, ConditionalPerceptionProjector, configured_choice
 from openpilot.starpilot.ui.traffic_status import TrafficDisplayProjector
 from openpilot.starpilot.controllers.mode_actions import SwitchbackStatusOwner
@@ -324,6 +324,8 @@ class RuntimeSnapshotAdapter:
     self._replay_epoch: int | None = None
 
   def _parked(self, ui: Any, pair: tuple[int, int, int] | None) -> bool:
+    if host_parked():
+      return not ui.started
     if pair is None:
       self._device_offset_ns = None
       self._pair_failed = True
